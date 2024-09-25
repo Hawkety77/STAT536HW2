@@ -31,13 +31,13 @@ df <- vroom::vroom("Rivers.csv")
 
 ### 2.2 Model Evaluation
 
-# 3. Results
+## 3. Results
 
-## 3.1 What are the biggest climate / river network / human factors that impact overall river flow?
+### 3.1 What are the biggest climate / river network / human factors that impact overall river flow?
 
-## 3.2 How well do the factors you listed in #1 explain overall flow?
+### 3.2 How well do the factors you listed in #1 explain overall flow?
 
-## 3.3 How predictive of overall flow are these identified factors?
+### 3.3 How predictive of overall flow are these identified factors?
 
 ## 4. Conclusions
 
