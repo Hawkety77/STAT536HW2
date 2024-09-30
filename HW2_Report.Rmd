@@ -1,7 +1,7 @@
 ---
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 ---
 title: "STAT 536 HW 1 Report"
@@ -24,6 +24,33 @@ df <- vroom::vroom("Rivers.csv")
 ## Abstract
 
 ## 1. Introduction: Problem Statement and Understanding
+
+Rivers are responsible for carrying water and nutrients to various parts of the earth.
+Many animals, including humans, rely on rivers and the life they bring to thrive in otherwise
+uninhabitable areas.
+In this project, we work to analyze how various factors (human, river network, and climate)
+impact the overall river flow in the Rocky Mountain area.
+
+Through an initial exploratory data analysis, we found that we have more variables
+than observations.
+This means, should we create a linear regression model with every variable, the design
+matrix would be rank-deficient, which would lead to several problems, including
+no unique solution for the coefficients, multicollinearity, overfitting, high variance
+in coefficients, and interpretability issues.
+
+The data set also contains monthly averages for precipitation, temperature, and cumulative precipitation,
+as well as annual averages for those same variables.
+This is potentially problematic because including both the yearly and monthly
+averages would introduce multicollinearity into the model.
+Furthermore, some of the variables are direct linear combinations of others.
+For example, the variable bio7 gives the annual temperature range, given by
+subtracting the max temperature from the minimum, both of which are stored as
+bio5 and bio6.
+Thus we want to avoid including these in our model simultaneously.
+
+In this project, we hope to find a predictive model for river flow based on
+the given variables while simultaneously avoiding incorporating the aforementioned
+problems into our model.
 
 ## 2. Methodology
 
