@@ -81,6 +81,11 @@ alias(model2)
 
 # bio3 and bio7 seem to be comprised of other bio variables, so drop those
 
+# Install and load 'car' package for VIF
+install.packages("car")
+library(car)
+
+# Model with annual data
 model_revised <- lm(y ~ strmOrder + Magnitude + strmDrop + length_km + area_sqkm + 
                       drain_den + gelev_m + garea_sqkm + gord + PathLength + TotalLength + 
                       MeanTempAnn + MeanPrecAnn + CumPrecTotal + 
@@ -92,8 +97,20 @@ model_revised <- lm(y ~ strmOrder + Magnitude + strmDrop + length_km + area_sqkm
                       MeanPopden_2010 + MeanPopden_2015 + MeanHumanFootprint + 
                       meanPercentDC_Imperfectly + meanPercentDC_ModeratelyWell + 
                       meanPercentDC_Poor + meanPercentDC_SomewhatExcessive + Lon + Lat,
-                    data = df)
+                    data = X)
 
+
+summary(model_revised)
+
+# Check VIF for multicollinearity
+vif_values <- sort(vif(model_revised), decreasing = TRUE)
+
+# Print VIF values
+print(vif_values)
+
+# You might want to remove predictors with a VIF > 10
+
+# Model with monthly data
 model_revised <- lm(y ~ strmOrder + Magnitude + strmDrop + length_km + area_sqkm + 
                       drain_den + gelev_m + garea_sqkm + gord + PathLength + TotalLength + 
                       MeanTemp01 + MeanTemp02 + MeanTemp03 + MeanTemp04 + MeanTemp05 + 
@@ -111,22 +128,41 @@ model_revised <- lm(y ~ strmOrder + Magnitude + strmDrop + length_km + area_sqkm
                       MeanPopden_2010 + MeanPopden_2015 + MeanHumanFootprint + 
                       meanPercentDC_Imperfectly + meanPercentDC_ModeratelyWell + 
                       meanPercentDC_Poor + meanPercentDC_SomewhatExcessive + Lon + Lat,
-                    data = df)
+                    data = X)
 
 
 summary(model_revised)
 
-# Check for multicollinearity
-# Install and load 'car' package for VIF
-install.packages("car")
-library(car)
-
 # Check VIF for multicollinearity
-vif_values <- vif(model_revised)
+vif_values <- sort(vif(model_revised), decreasing = TRUE)
 
 # Print VIF values
 print(vif_values)
 
-# You might want to remove predictors with a VIF > 10
+# Stepwise selection pt 2
+empty_model = lm(y ~ 1, data = X)
+step_model = stepAIC(empty_model, scope = ~ strmOrder + Magnitude + strmDrop + length_km + area_sqkm + 
+                       drain_den + gelev_m + garea_sqkm + gord + PathLength + 
+                       TotalLength + MeanTemp01 + MeanTemp02 + MeanTemp03 + 
+                       MeanTemp04 + MeanTemp05 + MeanTemp06 + MeanTemp07 + 
+                       MeanTemp08 + MeanTemp09 + MeanTemp10 + MeanTemp11 + 
+                       MeanTemp12 + MeanTempAnn + MeanPrec01 + MeanPrec02 + 
+                       MeanPrec03 + MeanPrec04 + MeanPrec05 + MeanPrec06 + 
+                       MeanPrec07 + MeanPrec08 + MeanPrec09 + MeanPrec10 + 
+                       MeanPrec11 + MeanPrec12 + MeanPrecAnn + CumPrec01 + 
+                       CumPrec02 + CumPrec03 + CumPrec04 + CumPrec05 + 
+                       CumPrec06 + CumPrec07 + CumPrec08 + CumPrec09 + 
+                       CumPrec10 + CumPrec11 + CumPrec12 + CumPrecTotal + 
+                       bio1 + bio2 + bio3 + bio4 + bio5 + bio6 + bio7 + 
+                       bio8 + bio9 + bio10 + bio11 + bio12 + bio13 + bio14 + 
+                       bio15 + bio16 + bio17 + bio18 + bio19 + cls1 + cls10 + 
+                       cls11 + cls12 + cls2 + cls3 + cls4 + cls5 + cls6 + 
+                       cls7 + cls8 + cls9 + Dam_SurfaceArea + Dam_Count + 
+                       HydroLakes_Area_sqkm + MeanPopden_2000 + MeanPopden_2005 + 
+                       MeanPopden_2010 + MeanPopden_2015 + MeanHumanFootprint + 
+                       meanPercentDC_Imperfectly + meanPercentDC_ModeratelyWell + 
+                       meanPercentDC_Poor + meanPercentDC_SomewhatExcessive + 
+                       Lon + Lat,
+                     direction = "forward")
 
-
+summary(step_model)
