@@ -1,7 +1,7 @@
 ---
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 ---
 title: "STAT 536 HW 1 Report"
@@ -31,12 +31,11 @@ uninhabitable areas.
 In this project, we work to analyze how various factors (human, river network, and climate)
 impact the overall river flow in the Rocky Mountain area.
 
-Through an initial exploratory data analysis, we found that we have more variables
-than observations.
-This means, should we create a linear regression model with every variable, the design
-matrix would be rank-deficient, which would lead to several problems, including
-no unique solution for the coefficients, multicollinearity, overfitting, high variance
-in coefficients, and interpretability issues.
+Through an initial exploratory data analysis, we found that we have 95 covariates and
+102 observations.
+This means, should we create a linear regression model with every variable, the model
+would likely be severely overfit, which would lead to several potential problems,
+including multicollinearity, high variance in coefficients, and interpretability issues.
 
 The data set also contains monthly averages for precipitation, temperature, and cumulative precipitation,
 as well as annual averages for those same variables.
@@ -55,6 +54,30 @@ problems into our model.
 ## 2. Methodology
 
 ### 2.1 Proposed Methods
+
+To combat the high dimensionality of our data set, we propose two models: a linear
+regression model constructed from a LASSO regularization, and a linear regression
+model created from a bi-directional selection algorithm using the AIC as a scoring metric.
+
+LASSO regularization helps reduce dimensionality selecting the most relevant predictors.
+It improves interpretability by producing a sparse model and reduces overfitting.
+However, it can introduce bias into coefficient estimates, and can struggle 
+when trying to handle highly correlated variables.
+In the context of the problem of this case study, a model built by LASSO would solve
+the dimensionality problem, however the colinearity between variables might pose a problem
+for this method.
+
+A forward and backward selection algorithm balances model fit and complexity.
+It also automates variable selection and has the advantage of navigating correlated
+predictors better than a pure forward or pure backward selection algorithm.
+Unfortunately, it is a greedy algorithm, meaning it may not find the best
+model.
+It also does not handle multicollinearity well and can be computationally expensive.
+A forward and backward selection model in the context of this problem would also
+solve the dimensionality issue.
+
+In both cases, we will need to check the classic LINE assumptions when using
+linear regression: linearity, independence, normally distributed errors, and equal variance.
 
 ### 2.2 Model Evaluation
 
