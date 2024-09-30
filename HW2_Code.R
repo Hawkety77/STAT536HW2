@@ -3,8 +3,8 @@ set.seed(77)
 
 library(tidyverse)
 
-df <- vroom::vroom('Rivers.csv')
-meta <- vroom::vroom('Metadata.csv')
+df <- vroom::vroom('./536/Hw2/STAT536HW2/Rivers.csv')
+meta <- vroom::vroom('./536/Hw2/STAT536HW2/Metadata.csv')
 
 # Some EDA
 
@@ -56,5 +56,77 @@ plot(model.cv, "validation", val.type = "R2", legendpos = "bottomright")
 model.2 = pcr(y ~ as.matrix(X), data=df, ncomp=2, scale=T)
 summary(model.2)
 
+# Forward Selection Model
+# Fit regression with all variables, which is represented by the "."
+fullmodel = lm(y ~ .,data=X)
+summary(fullmodel) # there's summary again!!
+
+# Stepwise selection
+library(MASS)
+model2 = stepAIC(fullmodel,direction = "forward")
+summary(model2)
+
+# PROBLEM: there is multicollinearity (4 coefficients 
+# are not defined due to perfect multicollinearity or 
+# lack of information to estimate them)
+
+# Check for perfectly colinear variables
+alias(model2)
+
+# It looks like there is a lot of colinearity with the monthly and annual average
+# temp, prec, and cumulative prec.
+
+# I drop the monthly variables, in hopes that the annual variables capture
+# the most of the variation and to simplify the model.
+
+# bio3 and bio7 seem to be comprised of other bio variables, so drop those
+
+model_revised <- lm(y ~ strmOrder + Magnitude + strmDrop + length_km + area_sqkm + 
+                      drain_den + gelev_m + garea_sqkm + gord + PathLength + TotalLength + 
+                      MeanTempAnn + MeanPrecAnn + CumPrecTotal + 
+                      bio1 + bio2 + bio4 + bio5 + bio6 + bio8 + bio9 + bio10 + 
+                      bio11 + bio12 + bio13 + bio14 + bio15 + bio16 + bio17 + bio18 + bio19 + 
+                      cls1 + cls10 + cls11 + cls12 + cls2 + cls3 + cls4 + cls5 + cls6 + 
+                      cls7 + cls8 + cls9 + Dam_SurfaceArea + Dam_Count + 
+                      HydroLakes_Area_sqkm + MeanPopden_2000 + MeanPopden_2005 + 
+                      MeanPopden_2010 + MeanPopden_2015 + MeanHumanFootprint + 
+                      meanPercentDC_Imperfectly + meanPercentDC_ModeratelyWell + 
+                      meanPercentDC_Poor + meanPercentDC_SomewhatExcessive + Lon + Lat,
+                    data = df)
+
+model_revised <- lm(y ~ strmOrder + Magnitude + strmDrop + length_km + area_sqkm + 
+                      drain_den + gelev_m + garea_sqkm + gord + PathLength + TotalLength + 
+                      MeanTemp01 + MeanTemp02 + MeanTemp03 + MeanTemp04 + MeanTemp05 + 
+                      MeanTemp06 + MeanTemp07 + MeanTemp08 + MeanTemp09 + MeanTemp10 + 
+                      MeanTemp11 + MeanTemp12 + MeanPrec01 + MeanPrec02 + MeanPrec03 + 
+                      MeanPrec04 + MeanPrec05 + MeanPrec06 + MeanPrec07 + MeanPrec08 + 
+                      MeanPrec09 + MeanPrec10 + MeanPrec11 + MeanPrec12 + 
+                      CumPrec01 + CumPrec02 + CumPrec03 + CumPrec04 + CumPrec05 + CumPrec06 + 
+                      CumPrec07 + CumPrec08 + CumPrec09 + CumPrec10 + CumPrec11 + CumPrec12 + 
+                      bio1 + bio2 + bio4 + bio5 + bio6 + bio8 + bio9 + bio10 + 
+                      bio11 + bio12 + bio13 + bio14 + bio15 + bio16 + bio17 + bio18 + bio19 + 
+                      cls1 + cls10 + cls11 + cls12 + cls2 + cls3 + cls4 + cls5 + cls6 + 
+                      cls7 + cls8 + cls9 + Dam_SurfaceArea + Dam_Count + 
+                      HydroLakes_Area_sqkm + MeanPopden_2000 + MeanPopden_2005 + 
+                      MeanPopden_2010 + MeanPopden_2015 + MeanHumanFootprint + 
+                      meanPercentDC_Imperfectly + meanPercentDC_ModeratelyWell + 
+                      meanPercentDC_Poor + meanPercentDC_SomewhatExcessive + Lon + Lat,
+                    data = df)
+
+
+summary(model_revised)
+
+# Check for multicollinearity
+# Install and load 'car' package for VIF
+install.packages("car")
+library(car)
+
+# Check VIF for multicollinearity
+vif_values <- vif(model_revised)
+
+# Print VIF values
+print(vif_values)
+
+# You might want to remove predictors with a VIF > 10
 
 
