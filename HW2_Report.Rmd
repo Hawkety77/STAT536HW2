@@ -4,7 +4,7 @@ output:
   html_document: default
 ---
 ---
-title: "STAT 536 HW 1 Report"
+title: "STAT 536 HW 2 Report"
 author: "Ty Hawkes and Brigg Trendler"
 date: "`r Sys.Date()`"
 output:
@@ -23,7 +23,7 @@ df <- vroom::vroom("Rivers.csv")
 
 ## Abstract
 
-This report investigates the impact of various factors on river flow in the Rocky Mountain region, utilizing a dataset comprising 95 covariates and 102 observations. Given the potential for overfitting due to high dimensionality and multicollinearity, we implement two modeling approaches: LASSO regularization and bi-directional variable selection based on Akaike Information Criterion (AIC). Through exploratory data analysis, we identify significant climate, land cover, and network variables affecting river flow. Our final model explains approximately 82% of the variance in river flow, demonstrating its predictive capability with a root mean square error (RMSE) of 0.4077 in cross-validation, significantly outperforming a baseline intercept model. We conclude that while our model effectively captures the variability in river flow, further research with diverse datasets is necessary to enhance its predictive performance and interpretability.
+This report investigates the impact of various factors on river flow in the Rocky Mountain region, utilizing a dataset comprising 95 covariates and 102 observations. Given the potential for overfitting due to high dimensionality and multicollinearity, we implement a bi-directional variable selection based on Akaike Information Criterion (AIC). Through exploratory data analysis, we identify significant climate, land cover, and network variables affecting river flow. Our final model explains approximately 82% of the variance in river flow, demonstrating its predictive capability with a root mean square error (RMSE) of 0.4077 in cross-validation, significantly outperforming a baseline intercept model. We conclude that while our model effectively captures the variability in river flow, further research with diverse datasets is necessary to enhance its predictive performance and interpretability.
 
 ## 1. Introduction: Problem Statement and Understanding
 
@@ -76,7 +76,8 @@ problems into our model.
 
 ### 2.1 Proposed Methods
 
-To combat the high dimensionality of our data set, we propose two models: a linear
+To combat the high dimensionality of our data set and adequately predict river flow
+based on the given variables, we propose two models: a linear
 regression model constructed from a LASSO regularization, and a linear regression
 model created from a bi-directional selection algorithm using the AIC as a scoring metric.
 
@@ -130,6 +131,13 @@ $$
 + 2.17050 \times \text{cls8}_i 
 + 0.17930 \times \text{cls1}_i
 $$
+
+A base intercept model predicts the values with an RMSE of 0.8845.
+Our LASSO model was able to make some improvement with an RMSE of 0.487,
+but our combination of forward and backward selection model was able to obtain
+an RMSE of 0.4077.
+This is promising, since there are only 12 variables, which preserves interpretability,
+while also providing decent predictive power.
 
 To verify our model is operating under the correct assumptions, we plotted
 the residuals vs fitted values graph and found that the residuals are randomly
