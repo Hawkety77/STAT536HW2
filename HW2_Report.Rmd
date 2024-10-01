@@ -4,7 +4,7 @@ output:
   html_document: default
 ---
 ---
-title: "STAT 536 HW 1 Report"
+title: "STAT 536 HW 2 Report"
 author: "Ty Hawkes and Brigg Trendler"
 date: "`r Sys.Date()`"
 output:
@@ -76,7 +76,8 @@ problems into our model.
 
 ### 2.1 Proposed Methods
 
-To combat the high dimensionality of our data set, we propose two models: a linear
+To combat the high dimensionality of our data set and adequately predict river flow
+based on the given variables, we propose two models: a linear
 regression model constructed from a LASSO regularization, and a linear regression
 model created from a bi-directional selection algorithm using the AIC as a scoring metric.
 
@@ -133,6 +134,12 @@ $$
 \end{aligned}
 $$
 
+A base intercept model predicts the values with an RMSE of 0.8845.
+Our LASSO model was able to make some improvement with an RMSE of 0.487,
+but our combination of forward and backward selection model was able to obtain
+an RMSE of 0.4077.
+This is promising, since there are only 12 variables, which preserves interpretability,
+while also providing decent predictive power.
 
 To verify our model is operating under the correct assumptions, we plotted
 the residuals vs fitted values graph and found that the residuals are randomly
