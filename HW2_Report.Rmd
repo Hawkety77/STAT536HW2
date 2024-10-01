@@ -23,9 +23,11 @@ df <- vroom::vroom("Rivers.csv")
 
 ## Abstract
 
+This report investigates the impact of various factors on river flow in the Rocky Mountain region, utilizing a dataset comprising 95 covariates and 102 observations. Given the potential for overfitting due to high dimensionality and multicollinearity, we implement two modeling approaches: LASSO regularization and bi-directional variable selection based on Akaike Information Criterion (AIC). Through exploratory data analysis, we identify significant climate, land cover, and network variables affecting river flow. Our final model explains approximately 82% of the variance in river flow, demonstrating its predictive capability with a root mean square error (RMSE) of 0.4077 in cross-validation, significantly outperforming a baseline intercept model. We conclude that while our model effectively captures the variability in river flow, further research with diverse datasets is necessary to enhance its predictive performance and interpretability.
+
 ## 1. Introduction: Problem Statement and Understanding
 
-```{r, echo = FALSE, message = FALSE}
+```{r,  fig.width=5, fig.height=3, fig.align='center', echo = FALSE, message = FALSE}
 library(maps)
 
 # Get US state boundaries
@@ -40,7 +42,8 @@ ggplot() +
        x = "Longitude",
        y = "Latitude",
        color = "Metric") +
-  theme_minimal()  # Use a minimal theme for the plot
+  theme_minimal() + # Use a minimal theme for the plot +   
+  theme(plot.title = element_text(hjust = 0.5))  # Center the title
 ```
 
 Rivers are responsible for carrying water and nutrients to various parts of the earth.
@@ -70,7 +73,21 @@ the given variables while simultaneously avoiding incorporating the aforemention
 problems into our model.
 
 ## 2. Methodology
-
+$$
+\widehat{\text{Flow}}_i = 103.18286 
+- 0.59865 \times \text{bio15}_i 
++ 2.20575 \times \text{CumPrec05}_i 
++ 0.42028 \times \text{mPDC}_i 
++ 0.73360 \times \text{bio18}_i 
++ 317.43807 \times \text{cls2}_i 
+- 0.08278 \times \text{Lon}_i 
+- 1.32608 \times \text{cls9}_i 
+- 1.25629 \times \text{bio14}_i 
++ 0.44521 \times \text{gord}_i 
+- 0.19627 \times \text{mPDC}_i 
++ 2.17050 \times \text{cls8}_i 
++ 0.17930 \times \text{cls1}_i
+$$
 ### 2.1 Proposed Methods
 
 To combat the high dimensionality of our data set, we propose two models: a linear
@@ -102,7 +119,7 @@ linear regression: linearity, independence, normally distributed errors, and equ
 ## 3. Results
 
 ### 3.1 What are the biggest climate / river network / human factors that impact overall river flow?
-The table below shows the beta coefficients of the factors that improved the AIC of our model. Each variable in our model had a significant impact on overall river flow.
+The table below shows the beta coefficients of the factors that remained after variable selection. Most variables in our model had a significant impact on overall river flow.
 
 | Term                             | Category       | Estimate   | Std. Error | Pr(>|t|)    |
 |----------------------------------|----------------|------------|------------|-------------|
@@ -120,17 +137,64 @@ The table below shows the beta coefficients of the factors that improved the AIC
 | cls8                             | Land Cover     | 2.17050    | 1.09753    | 0.051066 .  |
 | cls1                             | Land Cover     | 0.17930    | 0.09525    | 0.063035 .  |
 
-Each category had at least one significant factor affecting river flow. Climate factors included bio15 (Precipitation Seasonality (Coefficient of Variation)), CumPrec05 (Cumulative May precipitation for the watershed upstream of grdc station), bio18 (Precipitation of Warmest Quarter), and bio14 (Precipitation of Driest Month); Land cover factors included meanPercentDC_SomewhatExcessive (mean somewhat excessive drainage class), cls2 (Evergreen_Broadleaf), cls9 (Urban), meanPercentDC_ModeratelyWell (mean moderately well drained soil), cls8 (Regularly Flooded Vegetation), and cls1 (Evergreen_Dec_Needle_Trees); and network factors included gord (global stream order from stream dem (Predicted relationship with area)).
+Each category had at least one significant factor affecting river flow. Climate factors included bio15 (Precipitation Seasonality (Coefficient of Variation)), CumPrec05 (Cumulative May precipitation for the watershed upstream of grdc station), and bio14 (Precipitation of Driest Month); Land cover factors included meanPercentDC_SomewhatExcessive (mean somewhat excessive drainage class), cls2 (Evergreen_Broadleaf), cls9 (Urban), meanPercentDC_ModeratelyWell (mean moderately well drained soil); and network factors included gord (global stream order from stream dem (Predicted relationship with area)).
 
 ### 3.2 How well do these factors explain overall flow?
 
-Our model does a decent job explaining the overall flow of rivers. With these selected co-variates, our model explains nearly 82% of the in-sample variance as measured by the r-squared value.
+Our model does a decent job explaining the overall flow of rivers. With these selected co-variates, our model explains nearly 82% of the in-sample variance as measured by the r-squared value. This means that only 13% of the factors in the data are needed to explain 82% of the variation in river flow.
 
 ### 3.3 How predictive of overall flow are these identified factors?
 
-We estimate that our model will do a reasonable job predicting overall flow on our-of-sample data. Using a leave-one-out cross validation, our RMSE was .4077, a significant improvement over the base intercept model with an RMSE of .8845.
+```{r, fig.width=3, fig.height=2, fig.align='center', echo = FALSE}
+actual_values <- numeric(nrow(df))
+predicted_values <- numeric(nrow(df))
+
+# Loop to get predictions for each fold
+for (i in 1:nrow(df)) {
+  df_train = df[-i, ]
+  df_test = df[i, , drop = FALSE]  # Keep as a data frame
+  
+  # Apply linear regression and calculate predictions
+  train.lm <- lm(Metric ~ bio15 + CumPrec05 + meanPercentDC_SomewhatExcessive + 
+    bio18 + cls2 + Lon + cls9 + bio14 + gord + meanPercentDC_ModeratelyWell + 
+    cls8 + cls1, data = df_train)
+  
+  # Predict on df_test
+  predicted_values[i] <- predict(train.lm, df_test)
+  
+  # Store the actual metric value
+  actual_values[i] <- df_test$Metric
+}
+
+# Create a data frame for plotting
+residuals_df <- data.frame(
+  Actual = actual_values,
+  Predicted = predicted_values
+)
+
+# Create the plot
+ggplot(data = residuals_df, aes(x = Actual, y = Predicted)) +
+  geom_point(color = "black", size = 1) +  # Points for actual vs predicted
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "red") +  # Line y=x
+  labs(title = "Actual vs Predicted Values",
+       x = "Actual Values",
+       y = "Predicted Values") +
+  theme_minimal()  # Use a minimal theme for the plot
+```
+
+We estimate that our model will do a reasonable job predicting overall flow on our-of-sample data. As demonstrated in the figure above, using a leave-one-out cross validation lead to an RMSE of .4077, a significant improvement over the base intercept model with an RMSE of .8845. This reduction in error indicates that our model is better equipped to capture the variability in river flow than taking the average river flow of each river. 
 
 ## 4. Conclusions
 
+We used a linear model to evaluate the impact that different factors have on river flow. We found that despite there being 95 different variables available to us, over 82% of the variation in river flow can be explained by 12 variables alone. At least one climate, land cover, and network variable had a significant influence on the overall river flow. Using cross validation, we were able to show that our model had the capability of predicting river flow out of sample much better than simply taking the average river flow across all rivers.
+
+The biggest shortcoming of our model is it's ability to predict. To better understand the factors that contribute to river flow, we had to reduce the number of variables and avoid transformations that could have reduced its interpretability. Additionally, our model was trained on a geo-spatially correlated area of land in the united states, introducing unaccounted for violations of the independence assumption.
+
+In the future, we would like to collect more data from different parts of the world to get a better idea of how strong our predictors actually are. Additionally, we would like to make two models: one to interpret coefficients, and another to make excellent predictions. We would also like to account for geo-spatial correlation in these models.
+
 ## Teamwork
+
+Ty coded up potential models for the data, checked assumptions, helped troubleshoot code, and performed cross validation on them. Ty also wrote the results, conclusions, and the plots in the report
+
+Brigg also coded up potential models for the data, helped troubleshoot code, and tediously wrote long formulas in R. Brigg also wrote the introduction, methodology, and abstract.
 
