@@ -23,7 +23,7 @@ df <- vroom::vroom("Rivers.csv")
 
 ## Abstract
 
-This report investigates the impact of various factors on river flow in the Rocky Mountain region, utilizing a dataset comprising 95 covariates and 102 observations. Given the potential for overfitting due to high dimensionality and multicollinearity, we implement two modeling approaches: LASSO regularization and bi-directional variable selection based on Akaike Information Criterion (AIC). Through exploratory data analysis, we identify significant climate, land cover, and network variables affecting river flow. Our final model explains approximately 82% of the variance in river flow, demonstrating its predictive capability with a root mean square error (RMSE) of 0.4077 in cross-validation, significantly outperforming a baseline intercept model. We conclude that while our model effectively captures the variability in river flow, further research with diverse datasets is necessary to enhance its predictive performance and interpretability.
+This report investigates the impact of various factors on river flow in the Rocky Mountain region, utilizing a dataset comprising 95 covariates and 102 observations. Given the potential for overfitting due to high dimensionality and multicollinearity, we chose to use a linear regression with a bi-directional variable selection method based on Akaike Information Criterion (AIC). Through exploratory data analysis, we identify significant climate, land cover, and network variables affecting river flow. Our final model explains approximately 82% of the variance in river flow, demonstrating its predictive capability with a root mean square error (RMSE) of 0.4077 in cross-validation, significantly outperforming a baseline intercept model. We conclude that while our model effectively captures the variability in river flow, further research with diverse datasets is necessary to enhance its predictive performance and interpretability.
 
 ## 1. Introduction: Problem Statement and Understanding
 
@@ -116,20 +116,23 @@ both in sample and out of sample.
 Our Final Model:
 
 $$
+\begin{aligned}
 \widehat{\text{Flow}}_i = 103.18286 
 - 0.59865 \times \text{bio15}_i 
 + 2.20575 \times \text{CumPrec05}_i 
-+ 0.42028 \times \text{mPDC}_i 
++ 0.42028 \times \text{mPDC}_i \\
 + 0.73360 \times \text{bio18}_i 
 + 317.43807 \times \text{cls2}_i 
 - 0.08278 \times \text{Lon}_i 
-- 1.32608 \times \text{cls9}_i 
+- 1.32608 \times \text{cls9}_i \\
 - 1.25629 \times \text{bio14}_i 
 + 0.44521 \times \text{gord}_i 
-- 0.19627 \times \text{mPDC}_i 
+- 0.19627 \times \text{mPDC}_i \\
 + 2.17050 \times \text{cls8}_i 
 + 0.17930 \times \text{cls1}_i
+\end{aligned}
 $$
+
 
 To verify our model is operating under the correct assumptions, we plotted
 the residuals vs fitted values graph and found that the residuals are randomly
@@ -181,6 +184,8 @@ The table below shows the beta coefficients of the factors that remained after v
 | cls1                             | Land Cover     | 0.17930    | 0.09525    | 0.063035 .  |
 
 Each category had at least one significant factor affecting river flow. Climate factors included bio15 (Precipitation Seasonality (Coefficient of Variation)), CumPrec05 (Cumulative May precipitation for the watershed upstream of grdc station), and bio14 (Precipitation of Driest Month); Land cover factors included meanPercentDC_SomewhatExcessive (mean somewhat excessive drainage class), cls2 (Evergreen_Broadleaf), cls9 (Urban), meanPercentDC_ModeratelyWell (mean moderately well drained soil); and network factors included gord (global stream order from stream dem (Predicted relationship with area)).
+
+Among our significant variables, the factors that were associated with increased river flow were CumPrec05, mPDC_SomewhatExcessive, bio18, cls2, gord, cls8, and cls1. The factors that were associated with decreased river flow were bio15, Lon, cls9, bio14, and mPDC_ModeratelyWell.
 
 ### 3.2 How well do these factors explain overall flow?
 
