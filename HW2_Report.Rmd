@@ -99,6 +99,46 @@ linear regression: linearity, independence, normally distributed errors, and equ
 
 ### 2.2 Model Evaluation
 
+Both models seemed to take a conservative approach to interpretability by
+selecting the key components and favoring model simplicity.
+We decided to test both models using leave-one-out cross validation and found
+that the forward-and-backward selection algorithm model appeared to perform better,
+both in sample and out of sample.
+
+To verify our model is operating under the correct assumptions, we plotted
+the residuals vs fitted values graph and found that the residuals are randomly
+scattered around zero, indicating that has mostly captured the true relationship
+between the predictors and the river flow metric. This also indicates that
+the assumptions of linearity and constant variance are likely met.
+
+We generated a normal Q-Q plot and found that the points fall close to the diagonal
+line, which suggests that the data likely follows from a normal distribution,
+again validating one of our underlying assumptions when working with linear
+regression models.
+
+The scale-location plot reveals a downward trend of our standardized residuals.
+This indicates that there is a bit of heteroscedasticity in the data.
+However, the part that appears to be heteroscedastic also has the fewest
+data points.
+The bulk of the residuals appear to be clustered around 0, which may indicate
+that the data is homoscedastic enough for our purposes.
+
+We also checked the residuals vs leverage and find that there are no
+blatant problems.
+There are no distinct patterns, meaning the model fits well even in the presence
+of the outliers in the data set.
+
+Finally, we made sure our final model did not contain colinear variables
+(such as the yearly averages and bio7) as the information contained in those variables
+were also found in other variables or was deemed not as important by the feature
+selection algorithm.
+
+
+| Model | $R^2$ | RMSE |
+|-------|-------|------|
+| LASSO | 0.8065 | 0.484 |
+| Forward and Backward Selection | 0.8297 | 0.4077 |
+
 ## 3. Results
 
 ### 3.1 What are the biggest climate / river network / human factors that impact overall river flow?
